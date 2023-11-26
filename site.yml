@@ -56,6 +56,30 @@
        state: latest
      when: ansible_distribution == "CentOS"
    
+   - name: start httpd 
+     tags: apache, apache2, httpd
+     service:
+       name: apache2.service
+       state: started
+       enabled: true
+
+   - name: change email address for admin
+     tags: apache,httpd,apache2
+     lineinfile:
+       path: /etc/apache2/sites-available/000-default.conf
+       regexp: '^ServerAdmin'
+       line: ServerAdmin somebody@somewhere.net
+       backup: true
+     register: httpd
+
+
+   - name: restart apache
+     tags: apache, apache2
+     service:
+       name: apache2.service
+       state: restarted
+     when: httpd.changed  
+
    - name: copy default html file for site
      tags: apache,apache2,httpd
      copy:
