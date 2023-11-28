@@ -1,0 +1,17 @@
+---
+- name: Modify Netplan Configuration
+  hosts: dns
+  become: true
+
+  vars:
+    dns_server_ip: "192.168.255.255"
+
+  tasks:
+    - name: Update DNS server and search in Netplan
+      lineinfile:
+        path: /etc/netplan/00-installer-config.yaml
+        insertafter: EOF
+        line: |
+          nameservers:
+            addresses: [{{ dns_server_ip }}]
+          search: [bumbuntu.local]

@@ -1,0 +1,58 @@
+- name: Install BIND for DNS server
+  hosts: dns
+  become: true
+
+  tasks:
+    - name: Update apt
+      apt:
+        update_cache: yes
+
+    - name: Install BIND on DNS server
+      apt:
+        name: bind9
+        state: present
+
+
+- name: Configure DNS entries for multiple servers
+  hosts: dns
+  become: yes
+
+  vars:
+    dns_zone_file: "/etc/bind/zones/first.wst.com"
+    dns_zone_dir: "/etc/bind/zones"
+    servers:
+      - name: dns
+        ip: "192.168.31.230"
+      - name: ansible
+        ip: "192.168.31.234"
+      - name: ftp
+        ip: "192.168.31.235"
+      - name: http
+        ip: "192.168.31.236"
+      - name: db
+        ip: "192.168.31.237"
+
+  tasks:
+    - name: Create DNS zone directory if it doesn't exist
+      file:
+        path: "{{ dns_zone_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Create DNS zone file if it doesn't exist
+      file:
+        path: "{{ dns_zone_file }}"
+        state: touch
+        mode: '0644'
+      ignore_errors: true
+
+    - name: Add DNS entries for multiple servers
+      block:
+        - name: Add DNS entry for each server
+          lineinfile:
+            path: "{{ dns_zone_file }}"
+            line: "{{ item.name }} IN A {{ item.ip }}"
+            insertafter: EOF
+          loop: "{{ servers }}"
+          loop_control:
+            label: "{{ item.name }}"

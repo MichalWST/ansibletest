@@ -1,0 +1,8 @@
+[dns]
+serverDNS ansible_host=192.168.31.230 hostname=dns.wst.com
+
+[servers]
+serverFTP ansible_host=192.168.31.235 hostname=ftp.wst.com
+serverHTTP ansible_host=192.168.31.236 hostname=http.wst.com
+serverDB ansible_host=192.168.31.237 hostname=db.wst.com
+serverAnsible ansible_host=192.168.31.234 hostname=ansible.wst.com
