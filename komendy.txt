@@ -1,0 +1,2 @@
+ansible-playbook -u wst --ask-pass --ask-become-pass bootstrap.yml
+ansible-playbook -u wst --ask-pass --ask-become-pass bootstrap.yml

@@ -1,0 +1,13 @@
+- name: Modify forwarders configuration
+  hosts: dns
+  become: true
+
+  tasks:
+    - name: Modify forwarders in named.conf
+      replace:
+        path: /etc/bind/named.conf.options  # Replace with your named.conf path
+        regexp: "{{ item.regexp }}"  # Regular expression to match each line
+        replace: "{{ item.replace }}"  # Replacement for each line
+      loop:
+        - { regexp: '^(\s*)\/\/ forwarders\s*{', replace: '\\1forwarders {' }
+        - { regexp: '^(\s*)\/\/ other_l\s*{', replace: '\\1other_line1 {' }

@@ -1,0 +1,14 @@
+---
+- name: Copy file and check if it exists
+  hosts: dns
+  become: true
+
+  vars:
+    source_file: files/named.conf.local
+    destination_file: /etc/bind/named.conf.local
+  tasks:
+    
+    - name: Copy file if destination doesn't exist or checksums differ
+      copy:
+        src: "{{ source_file }}"
+        dest: "{{ destination_file }}"

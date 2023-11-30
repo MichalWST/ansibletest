@@ -1,0 +1,20 @@
+---
+- name: Copy file and check if it exists
+  hosts: dns
+  become: true
+
+  vars:
+    source_file: files/named.conf.local
+    destination_file: /etc/bind/named.conf.local
+
+  tasks:
+    - name: Get the file status
+      stat:
+        path: "{{ destination_file }}"
+      register: file_status
+
+    - name: Copy file if it doesn't exist or checksums differ
+      copy:
+        src: "{{ source_file }}"
+        dest: "{{ destination_file }}"
+      when: file_status.stat.md5 != ansible_checksum.md5

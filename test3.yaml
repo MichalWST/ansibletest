@@ -1,0 +1,18 @@
+---
+- name: Check checksum for source file
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    source_file: /files/named.conf.local
+
+  tasks:
+    - name: Get checksum for the source file
+      stat:
+        path: "{{ source_file }}"
+      register: file_info
+
+    - name: Display checksum for the source file
+      debug:
+        msg: "Checksum for {{ source_file }} is {{ file_info.stat.md5 }}"
+      when: file_info.stat.exists

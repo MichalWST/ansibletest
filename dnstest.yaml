@@ -1,0 +1,24 @@
+---
+- name: Configure DNS entries for multiple servers
+  hosts: dns
+  become: yes
+
+  vars:
+    dns_zone_file: "/etc/bind/db.praca.wst"  # Path to your zone file
+    servers:
+      - name: DBA
+        ip: "192.168.31.235"
+      - name: FTP
+        ip: "192.168.31.236"
+
+  tasks:
+    - name: Add DNS entries for multiple servers
+      block:
+        - name: Add DNS entry for each server
+          lineinfile:
+            path: "{{ dns_zone_file }}"
+            line: "{{ item.name }} IN A {{ item.ip }}"
+            insertafter: EOF
+          loop: "{{ servers }}"
+          loop_control:
+            label: "{{ item.name }}"
