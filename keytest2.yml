@@ -1,0 +1,24 @@
+---
+- name: Perform tasks on localhost
+  hosts: localhost
+  gather_facts: false
+
+
+  tasks:
+    - name: Generate SSH key pair
+      ansible.builtin.openssh_keypair:
+        path: "/home/wst/.ssh/id_rsa-test"
+        type: rsa
+        size: 2048
+
+
+- name: Run tasks on localhost
+  hosts: dns
+
+  tasks:
+    - name: Add SSH public key to authorized keys
+      ansible.builtin.authorized_key:
+        user: ansnix
+        key: "{{ lookup('file', '/home/wst/.ssh/id_rsa-test.pub') }}"
+
+

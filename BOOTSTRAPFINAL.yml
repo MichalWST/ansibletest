@@ -47,3 +47,7 @@
   - name: Change hostname
     hostname:
       name: "{{ hostvars[inventory_hostname].name }}"
+
+  - name: Set timezone to 'Your_Timezone'
+    timezone:
+        name: 'Europe/London'
