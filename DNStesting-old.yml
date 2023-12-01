@@ -1,0 +1,21 @@
+---
+- name: Gather hostnames and IP addresses and write to a file
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Gather hostnames and IP addresses
+      set_fact:
+        hostnames_and_ips: "{{ ansible_play_hosts_all | map('extract', hostvars, ['ansible_hostname', 'ansible_default_ipv4.address']) | list }}"
+      delegate_to: localhost
+      run_once: true
+- name: add IPs and Hostnames to file
+  hosts: dns
+  gather_facts: false
+  tasks:
+
+    - name: Append hostnames and IP addresses to the file
+      lineinfile:
+        path: "/tmp/test.txt"  # Replace with the path to the existing file
+        line: "{{ item[0] }} IN A {{ item[1] }}"
+      loop: "{{ hostnames_and_ips }}"
