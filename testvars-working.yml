@@ -1,0 +1,20 @@
+---
+- name: Playbook example 2
+  hosts: all
+
+  tasks:
+    - name: Include global variables
+      local_action:
+        module: include_vars
+        file: files/nfs_vars.yml
+      name: include_vars
+
+- name: Show included variables
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Show variables
+      debug:
+        msg: "Variable '{{ item.key }}' has value '{{ item.value }}'"
+      loop: "{{ lookup('file', 'files/nfs_vars.yml') | from_yaml | dict2items }}"
+      run_once: true

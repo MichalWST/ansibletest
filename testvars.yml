@@ -1,0 +1,18 @@
+---
+- name: Loading vars
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Include global variables
+      local_action:
+        module: include_vars
+        file: files/nfs_vars.yml
+      run_once: yes
+      tags: [never, no_log]
+   
+    - name: Show variables
+      debug:
+        msg: "Variable '{{ item.key }}' has value '{{ item.value }}'"
+      loop: "{{ lookup('file', 'files/nfs_vars.yml') | from_yaml | dict2items }}"
+      run_once: true
+
