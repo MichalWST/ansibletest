@@ -1,4 +1,4 @@
-[web_servers]
+[nfs]
 192.168.31.235
 
 [ntp]

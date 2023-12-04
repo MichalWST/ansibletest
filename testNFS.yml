@@ -1,0 +1,52 @@
+---
+- name: Set up NFS share and mount it
+  hosts: nfs
+  become: true
+
+  vars:
+    lvsize: 10G
+    vg_name: ubuntu-vg
+    new_lv_name: lv-nfs-share
+    new_filesystem: /NFS_mount
+  roles:
+    - update
+
+  tasks:
+    - name: Install NFS server package
+      apt:
+        name: nfs-kernel-server
+        state: present
+
+    - name: Create logical volume
+      command: lvcreate -y -L {{ lvsize }} -n {{ new_lv_name }} {{ vg_name }}
+
+    - name: Format logical volume as XFS
+      command: mkfs.xfs /dev/{{ vg_name }}/{{ new_lv_name }}
+
+    - name: Create NFS mount directory
+      file:
+        path: "{{ new_filesystem }}"
+        state: directory
+
+    - name: Add entry to /etc/fstab
+      lineinfile:
+        path: /etc/fstab
+        line: "/dev/{{ vg_name }}/{{ new_lv_name }} {{ new_filesystem }} xfs defaults 0 0"
+
+    - name: Mount NFS share
+      command: mount {{ new_filesystem}}
+
+    - name: Add entry to /etc/exports
+      lineinfile:
+        path: /etc/exports
+        line: "{{ new_filesystem }} *(rw,sync,no_subtree_check)"
+        state: present
+
+    - name: Apply NFS exports
+      command: exportfs -a
+
+    - name: Restart NFS service
+      service:
+        name: nfs-server
+        state: restarted
+        enabled: yes
