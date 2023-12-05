@@ -5,12 +5,22 @@
   vars:
     dns_zone_file: "/etc/bind/db.praca.wst"
     servers:
-      - name: DBA
+      - name: NFS
         ip: "192.168.31.235"
-      - name: FTP
-        ip: "192.168.31.236"
       - name: NTP
+        ip: "192.168.31.236"
+      - name: DB
         ip: "192.168.31.237"
+      - name: HTTP
+        ip: "192.168.31.238"
+      - name: GIT
+        ip: "192.168.31.239"
+      - name: DNS
+        ip: "192.168.31.230"
+      - name: Ansible
+        ip: "192.168.31.234"
+
+
 
   tasks:
     - name: update cache and install updates for apt
@@ -54,3 +64,16 @@
         name: bind9
         state: restarted
         enabled: yes
+
+- name: Setting up DNS Server
+  hosts: all:!dns
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Rebooting servers to apply DNS changes
+      become: true
+      reboot:
+        reboot_timeout: 3600
+        pre_reboot_delay: 5
+        post_reboot_delay: 20
+        test_command: uptime
