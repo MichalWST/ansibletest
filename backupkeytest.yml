@@ -6,7 +6,7 @@
   tasks:
     - name: Copy Git SSH key to clients
       copy:
-        src: vault/git_ssh_key
+        content: "{{private}}"
         dest: /home/git/.ssh/git_ssh_key
         mode: '0600'
         owner: git
@@ -19,8 +19,11 @@
   tasks:
 
 
-  - name: add ssh key for ansnix
-    authorized_key:
-      user: git
-      key: "{{ lookup('file', 'vault/git_ssh_key.pub') }}"
+    - name: Add Git public key to authorized_keys on Git server
+      lineinfile:
+        line: "{{ public}}"
+        dest: /home/git/.ssh/authorized_keys
+        owner: git
+        group: git
+        mode: '0600'
 

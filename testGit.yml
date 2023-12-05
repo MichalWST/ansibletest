@@ -1,0 +1,23 @@
+--
+- name: Set up Git servers
+  hosts: git:git-clients
+  become: true
+  tasks:
+    - name: Create git user
+      user:
+        name: git
+        group: git
+        shell: /bin/bash
+        create_home: yes
+    
+    - name: Generate SSH keys for git
+      ansible.builtin.command: >
+        ssh-keygen -t ed25519 -f ~/.ssh/gitkey -N '' -C "Key generated for Git user"
+      ignore_errors: yes
+      when: inventory_hostname in groups ['git-clients']
+
+    - name: add ssh key for git user
+      authorized_key:
+        user: git
+        key: "{{ lookup('file', '~/.ssh/ansnixkey.pub') }}"
+      when: inventory_hostname in groups['git-clients']

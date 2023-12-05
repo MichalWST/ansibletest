@@ -1,0 +1,11 @@
+---
+- name: Debug
+  hosts: localhost
+  gather_facts: false
+
+
+  tasks:
+    - name: Debug
+      debug:
+        msg: "{{private}}"
+

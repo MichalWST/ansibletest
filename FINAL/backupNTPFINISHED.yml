@@ -22,21 +22,7 @@
         state: restarted
         enabled: yes
 
-    - name: Restart systemd-resolved
-      service:
-        name: systemd-resolved
-        state: restarted
-        enabled: yes
-    - name: Test DNS with ping
-      command: ping -c 4 dns.praca.wst
-
-    - name: Set timezone to London
-      timezone:
-         name: 'Europe/London'
-
-
-
-- name: Configure timedatectl on clients
+- name: Install and update NTP on clients
   hosts: all:!ntp
   become: true
   roles:
