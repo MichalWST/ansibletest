@@ -66,14 +66,14 @@
         enabled: yes
 
 - name: Setting up DNS Server
-  hosts: all
+  hosts: all:!dns
   become: true
   gather_facts: false
   tasks:
-    - name: Restart Bind9 to apply changes
-      service:
-        name: systemd-resolved
-        state: restarted
-        enabled: yes
-    - name: Ping an address for four pings
-      command: ping -c 4 dns.praca.wst
+    - name: Rebooting servers to apply DNS changes
+      become: true
+      reboot:
+        reboot_timeout: 3600
+        pre_reboot_delay: 5
+        post_reboot_delay: 20
+        test_command: uptime
