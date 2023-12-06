@@ -1,0 +1,29 @@
+---
+- name: Set up Git server
+  hosts: git:git_clients
+  become: true
+  tasks:
+    - name: Update Git with apt
+      apt:
+        name: git
+        state: latest
+
+    - name: Create git user with home dir and bash shell
+      user:
+        name: git
+        shell: /bin/bash
+        createhome: yes
+
+
+    - name: Set password for git user
+      user:
+        name: git
+        password: "{{ lookup('file', 'vault/git/passwords') }}"
+        update_password: always
+          
+    - name: Set global Git user.email
+      command: su -c "git config --global user.email 'michal@prca.wst'" git
+
+    - name: Set global Git user.name
+      command: su -c "git config --global user.name 'michal'" git
+

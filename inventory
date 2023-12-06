@@ -1,14 +1,22 @@
-[nfs]
-192.168.31.235
+[http]
+http.praca.wst
 
 [ntp]
-192.168.31.236
+ntp.praca.wst
 
-[db_servers]
-192.168.31.237
-
-[workstations]
-192.168.31.236
+[db]
+db.praca.wst
 
 [dns]
-192.168.31.230
+dns.praca.wst
+
+[nfs]
+nfs.praca.wst
+
+[git]
+git.praca.wst
+
+
+[git_clients]
+http.praca.wst
+db.praca.wst

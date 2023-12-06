@@ -1,0 +1,94 @@
+---
+- name: Set up Git server and clients
+  hosts: git:git_clients
+  become: true
+  roles:
+    - update
+  tasks:
+    - name: Update Git with apt
+      apt:
+        name: git
+        state: latest
+
+    - name: Create git user with home dir and bash shell
+      user:
+        name: git
+        shell: /bin/bash
+        createhome: yes
+
+
+    - name: Read hashed password from file
+      set_fact:
+        hashed_password: "{{ lookup('file', 'vault/git/passwords') | password_hash('sha512') }}"
+
+    - name: Set password for git user
+      user:
+        name: git
+        password: "{{ hashed_password }}"
+        update_password: always
+
+    - name: Set global Git user.email
+      command: su -c "git config --global user.email 'michal@prca.wst'" git
+
+    - name: Set global Git user.name
+      command: su -c "git config --global user.name 'michal'" git
+
+- name: Git server specific changes
+  hosts: git
+  become: true
+  tasks:
+
+  - name: Authorize key for git user
+    authorized_key:
+      user: git
+      key: "{{ lookup('file', 'vault/git/git_ssh_key.pub') }}"
+
+  - name: Create Git repository directory
+    ansible.builtin.file:
+      path: /home/git/git_repo/my_project.git
+      state: directory
+      owner: git
+      group: git
+
+  - name: Initialize Git repository
+    command: git --bare init
+    args:
+       chdir: /home/git/git_repo/my_project.git
+       creates: /home/git/git_repo/my_project.git/HEAD
+
+- name: Git server specific changes
+  hosts: git_clients
+  become: true
+  tasks:
+
+    - name: Copy Git SSH key to clients
+      copy:
+        src: vault/git/git_ssh_key
+        dest: /home/git/.ssh/git_ssh_key
+        mode: '0600'
+        owner: git
+        group: git
+
+    - name: Copy ssh config for git@git
+      copy:
+        src: files/git_ssh_config
+        dest: /home/git/.ssh/git_ssh_config
+        mode: '0600'
+        owner: git
+        group: git
+
+    - name: Add entry for ssh config file
+      lineinfile:
+        path: /home/git/.ssh/config
+        line: "Include git_ssh_config"
+        state: present
+        create: yes
+
+    - name: Clone Git repository on Server B
+      become: yes
+      become_user: git
+      ansible.builtin.git:
+        repo: git@git:/home/git/git_repo/my_project.git
+        dest: /home/git/my_project
+        update: yes
+        accept_hostkey: yes

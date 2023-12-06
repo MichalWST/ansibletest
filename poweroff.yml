@@ -1,0 +1,8 @@
+---
+- name: Power off all servers
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Power off servers
+      command: shutdown -h now

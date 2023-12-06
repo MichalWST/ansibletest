@@ -1,0 +1,12 @@
+- name: test
+  hosts: http
+  become: true
+  tasks:
+  - name: Create Git repository directory
+    ansible.builtin.file:
+      path: /home/git/git_repo/my_project.git
+      state: directory
+      owner: git
+      group: git
+      mode: "0775"
+
