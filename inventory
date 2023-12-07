@@ -21,3 +21,9 @@ git.praca.wst
 http.praca.wst
 db.praca.wst
 nfs.praca.wst
+
+[cifs_hosts]
+nfs.praca.wst
+
+[cifs_clients]
+db.praca.wst
