@@ -20,4 +20,5 @@ git.praca.wst
 [git_clients]
 http.praca.wst
 db.praca.wst
+ntp.praca.wst
 nfs.praca.wst
