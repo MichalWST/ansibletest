@@ -60,7 +60,7 @@
       mount:
         path: /mnt/remote4
         state: mounted
-        src: "//192.168.31.236/smb"
+        src: "//192.168.31.235/smb"
         fstype: cifs
         opts: "username=wst,password=wst,uid=wst,gid=wst,file_mode=0755,dir_mode=0755"
 
