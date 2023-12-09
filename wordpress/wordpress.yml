@@ -1,0 +1,76 @@
+- name: Install WordPress Dependencies and Setup
+  hosts: http
+  become: yes
+
+  vars:
+    apache_conf_src: "files/wordpress.conf"
+    apache_conf_dest: "/etc/apache2/sites-available/wordpress.conf"
+    packages_to_install:
+      - libapache2-mod-php
+      - php-curl
+      - php-gd
+      - php-intl
+      - php-mbstring
+      - php-mysql
+      - php-soap
+      - php-xml
+      - php-xmlrpc
+      - php-zip
+      - unzip
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name: "{{ packages_to_install }}"
+        state: present
+
+    - name: Download WordPress
+      get_url:
+        url: "https://wordpress.org/latest.zip"
+        dest: "/tmp/latest.zip"
+
+    - name: Unzip WordPress archive
+      unarchive:
+        src: "/tmp/latest.zip"
+        dest: "/tmp/"
+        remote_src: yes
+
+    - name: Set ownership to www-data
+      file:
+        path: "/tmp/wordpress"
+        owner: www-data
+        group: www-data
+        recurse: yes
+
+    - name: Move WordPress to /var/www
+      command: mv /tmp/wordpress /var/www
+      register: disable_default_site
+      ignore_errors: yes
+      failed_when: "'Directory not empty' not in disable_default_site.stderr"
+
+    - name: Remove downloaded zip file
+      file:
+        path: "/tmp/latest.zip"
+        state: absent
+
+    - name: Transfer WordPress Apache config file
+      copy:
+        src: "{{ apache_conf_src }}"
+        dest: "{{ apache_conf_dest }}"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Disable default site configuration
+      command: a2dissite 000-default.conf
+      ignore_errors: yes
+
+    - name: Enable WordPress site configuration
+      command: a2ensite wordpress.conf
+
+    - name: Enable mod_rewrite in Apache
+      command: a2enmod rewrite
+      notify: Restart Apache2
+
+  handlers:
+    - include: handlers/apache_handlers.yml

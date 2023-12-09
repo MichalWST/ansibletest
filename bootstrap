@@ -1,0 +1,46 @@
+- name: Setup MariaDB Server
+  hosts: db
+  become: yes
+
+  vars:
+    mariadb_socket_path: /var/run/mysqld/mysqld.sock
+
+
+  tasks:
+    - name: Install MariaDB server
+      apt:
+        name: mariadb-server
+        state: present
+
+    - name: Change bind-address in MariaDB configuration
+      lineinfile:
+        path: /etc/mysql/mariadb.conf.d/50-server.cnf
+        regexp: '^bind-address\s*='
+        line: 'bind-address = 0.0.0.0'
+      notify: Restart MariaDB
+
+    - name: Create WordPress database
+      mysql_db:
+        name: wordpress_db
+        collation: utf8_unicode_ci
+        encoding: utf8
+        login_user: root
+        login_unix_socket: "{{ mariadb_socket_path }}"
+      become: yes
+
+    - name: Grant privileges to user for WordPress database
+      mysql_user:
+        name: wsthttp
+        host: 192.168.31.238
+        password: wst
+        priv: 'wordpress_db.*:ALL'
+        state: present
+        login_user: root
+        login_unix_socket: "{{ mariadb_socket_path }}"
+      become: yes
+
+  handlers:
+    - name: Restart MariaDB
+      service:
+        name: mariadb
+        state: restarted

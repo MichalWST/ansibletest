@@ -1,0 +1,8 @@
+---
+- name: Reboot off all servers
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Power off servers
+      command: reboot -h now
