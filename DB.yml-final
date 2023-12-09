@@ -8,7 +8,9 @@
   tasks:
     - name: Install MariaDB server
       apt:
-        name: mariadb-server
+        name: 
+          - mariadb-server
+          - python3-pymysql
         state: present
 
     - name: Change bind-address in MariaDB configuration
@@ -28,16 +30,18 @@
       become: yes
 
     - name: Grant privileges to user for WordPress database
-      mysql_user:
-        name: "{{ mariadb_user_name }}"
-        host: "{{ mariadb_host_ip }}"
-        password: "{{ lookup('file', 'vault/dbpassword') | password_hash('sha512') }}"
-        priv: "{{ mariadb_db_name }}.*:ALL"
-        state: present
+      mysql_query:
         login_user: "{{ mariadb_login_user }}"
         login_unix_socket: "{{ mariadb_socket_path }}"
+        query: "GRANT ALL PRIVILEGES ON wordpress_db.* TO wsthttp@'192.168.31.238' IDENTIFIED BY 'wst';"
+      become: yes
+
+    - name: Flush MySQL privileges
+      mysql_query:
+        login_user: "{{ mariadb_login_user }}"
+        login_unix_socket: "{{ mariadb_socket_path }}"
+        query: "FLUSH PRIVILEGES;"
       become: yes
       notify: Restart MariaDB
-
   handlers:
     - include: handlers/db_handlers.yml
