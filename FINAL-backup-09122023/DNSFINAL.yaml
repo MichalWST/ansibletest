@@ -25,7 +25,7 @@
   tasks:
     - name: update cache and install updates for apt
       apt:
-        # upgrade: dist
+        upgrade: dist
         update_cache: yes
 
     - name: install bind9, bind9utils, bind9-doc and dnsutils
@@ -55,7 +55,7 @@
             path: "{{ dns_zone_file }}"
             line: "{{ item.name }} IN A {{ item.ip }}"
             insertafter: EOF
-          loop: "{{ servers }}" #Loop based on entries in Var - "servers"
+          loop: "{{ servers }}"
           loop_control:
             label: "{{ item.name }}"
 
@@ -75,6 +75,5 @@
         name: systemd-resolved
         state: restarted
         enabled: yes
-
-    - name: Ping an address for four pings #Testing Domain Name Resolution
+    - name: Ping an address for four pings
       command: ping -c 4 dns.praca.wst

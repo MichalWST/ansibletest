@@ -1,0 +1,22 @@
+- name: Configure Apache2 Server
+  hosts: http
+  become: yes
+
+  vars:
+    apache_packages:
+      - apache2
+
+  tasks:
+    - name: Install Apache2
+      apt:
+        name: "{{ apache_packages }}"
+        state: present
+
+    - name: Copy default HTML site to Apache2 directory
+      copy:
+        src: files/index.html
+        dest: /var/www/html/index.html
+      notify: Restart Apache2
+
+  handlers:
+    - include: handlers/apache_handlers.yml

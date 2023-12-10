@@ -1,0 +1,4 @@
+Host git
+    HostName git.praca.wst
+    User git
+    IdentityFile ~/.ssh/git_ssh_key

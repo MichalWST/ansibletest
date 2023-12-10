@@ -1,7 +1,7 @@
 - name: Install NTP and connect hosts
   hosts: ntp
   become: true
-  roles: #Load task from file
+  roles:
     - update
   tasks:
 
@@ -27,7 +27,6 @@
         name: systemd-resolved
         state: restarted
         enabled: yes
-
     - name: Test DNS with ping
       command: ping -c 4 dns.praca.wst
 
@@ -38,7 +37,7 @@
 
 
 - name: Configure timedatectl on clients
-  hosts: all:!ntp #All servers but ntp
+  hosts: all:!ntp
   become: true
   roles:
     - update
@@ -53,12 +52,8 @@
         path: /etc/systemd/timesyncd.conf
         regexp: '^#NTP'
         line: 'NTP=ntp.praca.wst'
-
-    - name: Restart systemd-timesyncd
-      systemd:
-        name: systemd-timesyncd
-        state: restarted
-        enabled: yes
+    - name: Restart systemd-timesyncd.service
+      command: systemctl restart systemd-timesyncd.service
 
     - name: Set timezone to London
       timezone:

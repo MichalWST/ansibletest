@@ -5,7 +5,7 @@
   roles:
     - update
   tasks:
-    - name: Update Git with apt #Redundant with role before.
+    - name: Update Git with apt
       apt:
         name: git
         state: latest
@@ -19,7 +19,7 @@
 
     - name: Read hashed password from file
       set_fact:
-        hashed_password: "{{ lookup('file', 'vault/git/passwords') | password_hash('sha512') }}" # Reads the content of the vaulted file, hashes it and stores in var
+        hashed_password: "{{ lookup('file', 'vault/git/passwords') | password_hash('sha512') }}"
 
     - name: Set password for git user
       user:
@@ -27,14 +27,14 @@
         password: "{{ hashed_password }}"
         update_password: always
 
-    - name: Set global Git user.email #Sets up global vars for git
+    - name: Set global Git user.email
       command: su -c "git config --global user.email 'michal@praca.wst'" git
 
     - name: Set global Git user.name
       command: su -c "git config --global user.name 'michal'" git
 
 - name: Git server specific changes
-  hosts: git #Just servers from [git]
+  hosts: git
   become: true
   tasks:
 
@@ -54,15 +54,15 @@
   - name: Initialize Git repository
     command: git --bare init
     args:
-      chdir: /home/git/git_repo/my_project.git #Where to execute the command
-      creates: /home/git/git_repo/my_project.git/HEAD #Makes sure the command is not executed if such path exists.
+      chdir: /home/git/git_repo/my_project.git
+      creates: /home/git/git_repo/my_project.git/HEAD
 
-  - name: Set ownership recursively for the repository directory
+  - name: Set permissions and ownership recursively for the repository directory
     command: chown -R git:git /home/git/git_repo
 
 
 - name: Git server specific changes
-  hosts: git_clients #Just clients
+  hosts: git_clients
   become: true
   tasks:
 
@@ -96,13 +96,13 @@
         path: /home/git/.ssh/config
         line: "Include git_ssh_config"
         state: present
-        create: yes #Creates the file if none exists
+        create: yes
 
-    - name: trying some ssh-keyscan #First connections between machines require fingerprint acceptance.
+    - name: trying some ssh-keyscan
       command: su -c "ssh-keyscan -H git.praca.wst >> ~/.ssh/known_hosts" git
 
     - name: Initialize Git repository
-      command: su -c "git clone git@git:/home/git/git_repo/my_project.git" git #Perform command as user git
+      command: su -c "git clone git@git:/home/git/git_repo/my_project.git" git
       args:
          chdir: /home/git
          creates: /home/git/my_project

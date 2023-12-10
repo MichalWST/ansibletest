@@ -1,0 +1,23 @@
+---
+- name: Create/Append top.txt file with top 10 lines
+  hosts: db
+  become: true
+  tasks:
+    - name: Include global variables #One way to include variables from the file.
+      local_action:
+        module: include_vars
+        file: files/nfs_vars.yml
+      run_once: yes
+
+    - name: Create NFS mount directory
+      file:
+        path: "{{ new_filesystem }}"
+        state: directory
+
+    - name: Change owner and group of NFS mount directory
+      file:
+        path: "{{ new_filesystem }}"
+        owner: "{{ new_owner }}"
+        group: "{{ new_group }}"
+      ignore_errors: yes
+

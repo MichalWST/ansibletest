@@ -35,7 +35,7 @@
     - name: Add user to smbpasswd #One of the ways to work around passowrd prompts. If performed multiple timeas on the same user - no changes will be made.
       changed_when: false # Task will always show as "changed". Suppressing this output. Failure will still stop the playbook.
       expect:
-        command: smbpasswd -a wst #One way to work with interactive prompts. Adds user wst to samba
+        command: smbpasswd -a wst
         responses:
           'New SMB password:': 'wst'
           'Retype new SMB password:': 'wst'
