@@ -1,0 +1,113 @@
+---
+- name: Set up NFS share and mount it
+  hosts: nfs
+  become: true
+  roles:
+    - update
+
+  tasks:
+    - name: Include global variables #One way to include variables from the file.
+      local_action:
+        module: include_vars
+        file: files/nfs_vars.yml
+      run_once: yes
+
+    - name: Show variables #Since variables are loaded from the file - Displays the values at the start of playbook.
+      debug:
+        msg: "Variable '{{ item.key }}' has value '{{ item.value }}'"
+      loop: "{{ lookup('file', 'files/nfs_vars.yml') | from_yaml | dict2items }}"
+      run_once: true
+
+
+    - name: Install NFS server package
+      apt:
+        name: nfs-kernel-server
+        state: present
+
+    - name: Create logical volume
+      command: lvcreate -y -L {{ lvsize }} -n {{ new_lv_name }} {{ vg_name }}
+      ignore_errors: yes
+      register: lv_creation_result #Registers the result of the task, to skip some tasks in case of already existing volume.
+
+    - name: Skip play if logical volume creation fails
+      block:
+        - name: Handle failed logical volume creation #Task to end play (Not whole playbook) if the LVM wasn't created this run.
+          meta: end_play
+      when: lv_creation_result is failed
+
+    - name: Format logical volume as XFS
+      command: mkfs.xfs /dev/{{ vg_name }}/{{ new_lv_name }}
+
+    - name: Create NFS mount directory
+      file:
+        path: "{{ new_filesystem }}"
+        state: directory
+
+
+    - name: Add entry to /etc/fstab
+      lineinfile:
+        path: /etc/fstab
+        line: "/dev/{{ vg_name }}/{{ new_lv_name }} {{ new_filesystem }} xfs defaults 0 0"
+
+    - name: Mount NFS share #Mount performed by commands, mount module shown in CIFS playbook.
+      command: mount {{ new_filesystem}}
+
+    - name: Change owner and group of NFS mount directory
+      file:
+        path: "{{ new_filesystem }}"
+        owner: "{{ new_owner }}"
+        group: "{{ new_group }}"
+      ignore_errors: yes
+
+    - name: Add entry to /etc/exports
+      lineinfile:
+        path: /etc/exports
+        line: "{{ new_filesystem }} *(rw,sync,no_subtree_check)"
+        state: present
+
+    - name: Apply NFS exports
+      command: exportfs -a
+
+    - name: Restart NFS service
+      service:
+        name: nfs-server
+        state: restarted
+        enabled: yes
+    
+- name: Loading vars
+  hosts: all:!nfs
+  gather_facts: false
+  become: true
+  roles:
+    - update
+
+  tasks:
+
+    - name: Include global variables
+      local_action:
+        module: include_vars
+        file: files/nfs_vars.yml
+      run_once: yes
+
+    - name: Install NFS server package
+      apt:
+        name: nfs-common
+        state: present
+
+    - name: Show variables
+      debug:
+        msg: "Variable '{{ new_lv_name  }}' "
+
+    - name: Add entry to /etc/fstab
+      lineinfile:
+        path: /etc/fstab
+        line: "{{ groups['nfs'] | map('extract', hostvars, ['inventory_hostname']) | first }}:{{ new_filesystem }} {{mount_name}} nfs rw 0 0" #Check in playbook for [nfs] hosts and picks firsts' name.
+
+    - name: Create NFS mount directory
+      file:
+        path: "{{ mount_name }}"
+        state: directory
+
+    - name: Mount NFS share
+      command: mount "{{ mount_name }}"
+
