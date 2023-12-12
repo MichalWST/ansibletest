@@ -1,0 +1,48 @@
+Timestamp: 2023-12-11T19:31:19Z
+db.praca.wst
+Memory details: 957 MB
+CPU details: [0, GenuineIntel, Intel(R) Core(TM) i5-6600K CPU @ 3.50GHz]
+Timestamp: 2023-12-11T19:31:09Z
+http.praca.wst
+Memory details: 957 MB
+CPU details: [0, GenuineIntel, Intel(R) Core(TM) i5-6600K CPU @ 3.50GHz]
+Timestamp: 2023-12-11T19:31:19Z
+dns.praca.wst
+Memory details: 957 MB
+CPU details: [0, GenuineIntel, Intel(R) Core(TM) i5-6600K CPU @ 3.50GHz]
+Timestamp: 2023-12-11T19:31:09Z
+ntp.praca.wst
+Memory details: 957 MB
+CPU details: [0, GenuineIntel, Intel(R) Core(TM) i5-6600K CPU @ 3.50GHz]
+Timestamp: $(date +%Y-%m-%d\ %H:%M:%S)
+db.praca.wst
+Memory Usage: $(free -m | awk NR==2{print $3}) MB / $(free -m | awk NR==2{print $2}) MB
+CPU Usage: $(top -bn1 | grep Cpu(s) | awk {print $2 + $4})%
+Timestamp: $(date +%Y-%m-%d\ %H:%M:%S)
+http.praca.wst
+Memory Usage: $(free -m | awk NR==2{print $3}) MB / $(free -m | awk NR==2{print $2}) MB
+CPU Usage: $(top -bn1 | grep Cpu(s) | awk {print $2 + $4})%
+Timestamp: $(date +%Y-%m-%d\ %H:%M:%S)
+ntp.praca.wst
+Memory Usage: $(free -m | awk NR==2{print $3}) MB / $(free -m | awk NR==2{print $2}) MB
+CPU Usage: $(top -bn1 | grep Cpu(s) | awk {print $2 + $4})%
+Timestamp: $(date +%Y-%m-%d\ %H:%M:%S)
+dns.praca.wst
+Memory Usage: $(free -m | awk NR==2{print $3}) MB / $(free -m | awk NR==2{print $2}) MB
+CPU Usage: $(top -bn1 | grep Cpu(s) | awk {print $2 + $4})%
+Timestamp: $(date +%Y-%m-%d\ %H:%M:%S)
+db.praca.wst
+Memory Usage: $(free -m | grep Mem | awk {print $3}) MB / $(free -m | grep Mem | awk {print $2}) MB
+CPU Usage: $(top -bn1 | grep Cpu(s) | awk {print $2 + $4})%
+Timestamp: $(date +%Y-%m-%d\ %H:%M:%S)
+dns.praca.wst
+Memory Usage: $(free -m | grep Mem | awk {print $3}) MB / $(free -m | grep Mem | awk {print $2}) MB
+CPU Usage: $(top -bn1 | grep Cpu(s) | awk {print $2 + $4})%
+Timestamp: $(date +%Y-%m-%d\ %H:%M:%S)
+ntp.praca.wst
+Memory Usage: $(free -m | grep Mem | awk {print $3}) MB / $(free -m | grep Mem | awk {print $2}) MB
+CPU Usage: $(top -bn1 | grep Cpu(s) | awk {print $2 + $4})%
+Timestamp: $(date +%Y-%m-%d\ %H:%M:%S)
+http.praca.wst
+Memory Usage: $(free -m | grep Mem | awk {print $3}) MB / $(free -m | grep Mem | awk {print $2}) MB
+CPU Usage: $(top -bn1 | grep Cpu(s) | awk {print $2 + $4})%

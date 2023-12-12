@@ -1,0 +1,36 @@
+               total        used        free      shared  buff/cache   available
+Mem:           957Mi       206Mi       182Mi       1.0Mi       568Mi       604Mi
+Swap:          1.9Gi       0.0Ki       1.9Gi
+               total        used        free      shared  buff/cache   available
+Mem:           957Mi       193Mi        88Mi       1.0Mi       675Mi       613Mi
+Swap:          1.9Gi       0.0Ki       1.9Gi
+               total        used        free      shared  buff/cache   available
+Mem:           957Mi       207Mi       201Mi        24Mi       548Mi       573Mi
+Swap:          1.9Gi       2.0Mi       1.9Gi
+               total        used        free      shared  buff/cache   available
+Mem:           957Mi       248Mi       183Mi       1.0Mi       524Mi       556Mi
+Swap:          1.9Gi       1.0Mi       1.9Gi
+               total        used        free      shared  buff/cache   available
+Mem:           957Mi       206Mi       182Mi       1.0Mi       568Mi       604Mi
+Swap:          1.9Gi       0.0Ki       1.9Gi
+               total        used        free      shared  buff/cache   available
+Mem:           957Mi       207Mi       201Mi        24Mi       549Mi       573Mi
+Swap:          1.9Gi       2.0Mi       1.9Gi
+               total        used        free      shared  buff/cache   available
+Mem:           957Mi       193Mi        88Mi       1.0Mi       675Mi       613Mi
+Swap:          1.9Gi       0.0Ki       1.9Gi
+               total        used        free      shared  buff/cache   available
+Mem:           957Mi       248Mi       183Mi       1.0Mi       524Mi       557Mi
+Swap:          1.9Gi       1.0Mi       1.9Gi
+               total        used        free      shared  buff/cache   available
+Mem:           957Mi       248Mi       183Mi       1.0Mi       524Mi       557Mi
+Swap:          1.9Gi       1.0Mi       1.9Gi
+               total        used        free      shared  buff/cache   available
+Mem:           957Mi       193Mi        88Mi       1.0Mi       675Mi       613Mi
+Swap:          1.9Gi       0.0Ki       1.9Gi
+               total        used        free      shared  buff/cache   available
+Mem:           957Mi       206Mi       182Mi       1.0Mi       568Mi       604Mi
+Swap:          1.9Gi       0.0Ki       1.9Gi
+               total        used        free      shared  buff/cache   available
+Mem:           957Mi       207Mi       201Mi        24Mi       549Mi       573Mi
+Swap:          1.9Gi       2.0Mi       1.9Gi

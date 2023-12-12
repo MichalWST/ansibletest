@@ -1,0 +1,48 @@
+2023-12-11 20:15:37
+Memory Usage:
+               total        used        free      shared  buff/cache   available
+Mem:           957Mi       204Mi       182Mi       1.0Mi       570Mi       605Mi
+Swap:          1.9Gi       0.0Ki       1.9Gi
+
+Top 10 Processes:
+top - 20:15:38 up  5:41,  1 user,  load average: 1.00, 1.00, 1.00
+Tasks: 113 total,   1 running, 112 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.0 us,  0.0 sy,  0.0 ni,100.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem :    957.6 total,    182.5 free,    204.9 used,    570.2 buff/cache
+MiB Swap:   1915.0 total,   1914.7 free,      0.3 used.    605.8 avail Mem 
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+      1 root      20   0  102116  13072   8224 S   0.0   1.3   0:04.55 systemd
+      2 root      20   0       0      0      0 S   0.0   0.0   0:00.00 kthreadd
+      3 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 rcu_gp
+      4 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 rcu_par+
+      5 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 slub_fl+
+      6 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 netns
+      8 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker+
+     10 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 mm_perc+
+     11 root      20   0       0      0      0 S   0.0   0.0   0:00.00 rcu_tas+
+     12 root      20   0       0      0      0 S   0.0   0.0   0:00.00 rcu_tas+
+2023-12-11 20:15:56
+Memory Usage:
+               total        used        free      shared  buff/cache   available
+Mem:           957Mi       204Mi       182Mi       1.0Mi       570Mi       605Mi
+Swap:          1.9Gi       0.0Ki       1.9Gi
+
+Top 10 Processes:
+top - 20:15:56 up  5:42,  1 user,  load average: 1.00, 1.00, 1.00
+Tasks: 113 total,   1 running, 112 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.0 us,  0.0 sy,  0.0 ni, 93.8 id,  0.0 wa,  0.0 hi,  6.2 si,  0.0 st
+MiB Mem :    957.6 total,    182.5 free,    204.8 used,    570.2 buff/cache
+MiB Swap:   1915.0 total,   1914.7 free,      0.3 used.    605.8 avail Mem 
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+      1 root      20   0  102116  13072   8224 S   0.0   1.3   0:04.55 systemd
+      2 root      20   0       0      0      0 S   0.0   0.0   0:00.00 kthreadd
+      3 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 rcu_gp
+      4 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 rcu_par+
+      5 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 slub_fl+
+      6 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 netns
+      8 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker+
+     10 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 mm_perc+
+     11 root      20   0       0      0      0 S   0.0   0.0   0:00.00 rcu_tas+
+     12 root      20   0       0      0      0 S   0.0   0.0   0:00.00 rcu_tas+

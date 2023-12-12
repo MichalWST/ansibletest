@@ -1,0 +1,29 @@
+- name: Debugging file and disk space
+  hosts: nfs
+  gather_facts: yes
+  tasks:
+    - name: Get size of /tmp/test.txt
+      ansible.builtin.stat:
+        path: /tmp/test.txt
+      register: test_file_stat
+
+    - name: Display size of /tmp/test.txt
+      ansible.builtin.debug:
+        msg: "Size of /tmp/test.txt: {{ test_file_stat.stat.size }} (default type)"
+
+    - name: Check available disk space in /tmp/old
+      ansible.builtin.shell:
+        cmd: df /tmp/old | awk 'NR==2{print $4}'
+      register: disk_space_raw
+      changed_when: false
+
+    - name: Display available disk space in /tmp/old
+      ansible.builtin.debug:
+        msg: "Available disk space in /tmp/old: {{ disk_space_raw.stdout }} KB (default type)"
+
+    - name: Display message if there is enough free space
+      ansible.builtin.debug:
+        msg: "Enough space available for the file operation"
+      when: 
+        - (disk_space_raw.stdout | int) * 1024 > test_file_stat.stat.size
+

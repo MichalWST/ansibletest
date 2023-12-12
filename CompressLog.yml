@@ -1,0 +1,35 @@
+- name: Manage large log files
+  hosts: http
+  become: true
+  tasks:
+    - name: Get size of /tmp/test.txt
+      ansible.builtin.stat:
+        path: /tmp/test.txt
+      register: test_file_stat
+
+    - name: Ensure /tmp/old directory exists
+      ansible.builtin.file:
+        path: /tmp/old
+        state: directory
+
+    - name: Move and compress /tmp/test.txt if size > 5MB
+      block:
+        - name: Copy /tmp/test.txt to /tmp/old/ and clear original file
+          block:
+            - name: Copy /tmp/test.txt to /tmp/old/
+              ansible.builtin.copy:
+                src: /tmp/test.txt
+                dest: /tmp/old/test.txt
+                remote_src: yes
+
+            - name: Clear contents of /tmp/test.txt
+              ansible.builtin.copy:
+                content: ''
+                dest: /tmp/test.txt
+
+        - name: Compress /tmp/old/test.txt into /tmp/old/test.tar.gz and remove original
+          ansible.builtin.shell:
+            cmd: tar -czf /tmp/old/test.tar.gz --remove-files -C /tmp/old test.txt
+
+      when: test_file_stat.stat.exists and test_file_stat.stat.size > 5242880
+

@@ -1,0 +1,56 @@
+- name: Compress log files above size X
+  hosts: nfs
+  gather_facts: yes
+  become: true
+  vars:
+    size_threshold_kb: 5120  # Value in KB
+    file_path: /tmp/test.txt #File to be checked and compressed 
+    destination_path: /tmp/old/ #Where to perform compression and store .tar file
+
+  tasks:
+    - name: Get size of the file #Uses stat module to get file's details
+      ansible.builtin.stat:
+        path: "{{ file_path }}"
+      register: file_stat #All stats of the file
+
+    - name: Convert file size to KB for comparison
+      set_fact:
+        file_size_kb: "{{ (file_stat.stat.size / 1024) | int }}" # .stat.size is in bytes, converting to KB
+
+    - name: Ensure destination directory exists #Creates directory if doesn't exist
+      ansible.builtin.file:
+        path: "{{ destination_path }}"
+        state: directory
+
+    - name: Check available disk space in destination #Saves disk size value to disk_space_raw in Bytes
+      ansible.builtin.shell:
+        cmd: df "{{ destination_path }}" | awk 'NR==2{print $4}' #Prints 4th value from 2nd row of df command output
+      register: disk_space_raw 
+      changed_when: false
+
+    - name: Convert disk space to bytes for comparison
+      set_fact:
+        disk_space_bytes: "{{ (disk_space_raw.stdout | int) * 1024 }}" #Converts free disk size value into KB
+
+    - name: Move and compress the file if size > threshold and enough disk space
+      block: #Three tasks performed with one condition
+        - name: Copy the file to destination
+          ansible.builtin.copy:
+            src: "{{ file_path }}"
+            dest: "{{ destination_path }}{{ file_path | basename }}" # 2nd part filters last part of the path (just filename)
+            remote_src: yes
+
+        - name: Clear contents of the original file #Clears the file but maintains the ownership and permissions
+          ansible.builtin.copy:
+            content: ''
+            dest: "{{ file_path }}"
+
+        - name: Compress the file in destination and remove original #Working on copy, not original file to avoid errors
+          ansible.builtin.shell:
+            cmd: "tar -czf {{ destination_path }}{{ file_path | basename }}.tar.gz --remove-files -C {{ destination_path }} {{ file_path | basename }}"
+
+      when:
+        - file_stat.stat.exists
+        - file_size_kb > size_threshold_kb #Checkes if *log* file is above set size
+        - disk_space_bytes > file_stat.stat.size #Checks if there is a free space to make a work copy.
+

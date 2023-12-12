@@ -1,0 +1,26 @@
+- name: Execute Script, Fetch Output, and Remove Files
+  hosts: all
+  gather_facts: no
+
+  tasks:
+
+    - name: Execute the script
+      script: memory_script.sh
+      args:
+        chdir: /tmp/
+
+    - name: Fetch output file from remote hosts to a temporary directory
+      fetch:
+        src: "/tmp/memory_usage.txt"
+        dest: "tmp/"
+        flat: yes
+
+    - name: Append fetched files into a single file
+      command: "cat tmp/memory_usage.txt >> log/{{ inventory_hostname }}_stats.txt"
+      delegate_to: localhost
+      become: false
+
+    - name: Remove output file from remote hosts
+      file:
+        path: /tmp/memory_usage.txt
+        state: absent
