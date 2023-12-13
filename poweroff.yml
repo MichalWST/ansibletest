@@ -6,3 +6,12 @@
   tasks:
     - name: Power off servers
       command: shutdown -h now
+      ignore_errors: true
+
+- name: Down goes the localhost
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Bye
+      command: shutdown -h now
+      tags: localhost
