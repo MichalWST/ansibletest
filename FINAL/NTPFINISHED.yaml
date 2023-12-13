@@ -33,7 +33,13 @@
 
     - name: Set timezone to London
       timezone:
-         name: 'Europe/London'
+         name: 'Europe/Warsaw'
+
+    - name: Restart resolved for DNS
+      service:
+        name: systemd-resolved
+        state: restarted
+        enabled: yes
 
 
 

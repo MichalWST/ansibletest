@@ -70,7 +70,7 @@
   become: true
   gather_facts: false
   tasks:
-    - name: Restart Bind9 to apply changes
+    - name: Restart systemd-resolved apply changes
       service:
         name: systemd-resolved
         state: restarted

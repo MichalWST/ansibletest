@@ -1,0 +1,16 @@
+- name: Update root's Bash prompt
+  hosts: all
+  become: yes
+  vars_files:
+    - vault/rootpassword.yml
+
+  tasks:
+    - name: Update root's bash prompt
+      lineinfile:
+        dest: /root/.bashrc
+        line: 'export PS1="\[\e[31m\]\u\[\e[m\]@\[\e[32m\]\h\[\e[m\]:\w \[\e[36m\]\t\[\e[m\] $ "' 
+    
+    - name: Change root password
+      user:
+        name: root
+        password: "{{ root_password }}"

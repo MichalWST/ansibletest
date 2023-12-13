@@ -14,7 +14,7 @@
 
     - name: Copy default HTML site to Apache2 directory
       copy:
-        src: files/index.html
+        src: files/index2.html
         dest: /var/www/html/index.html
       notify: Restart Apache2
 

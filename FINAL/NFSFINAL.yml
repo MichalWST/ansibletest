@@ -25,15 +25,24 @@
         state: present
 
     - name: Create logical volume
-      command: lvcreate -y -L {{ lvsize }} -n {{ new_lv_name }} {{ vg_name }}
+      community.general.lvol:
+        vg: "{{ vg_name }}"
+        lv: "{{ new_lv_name }}"
+        size: "{{ lvsize }}"
+        force: yes
       ignore_errors: yes
-      register: lv_creation_result #Registers the result of the task, to skip some tasks in case of already existing volume.
+      register: lv_creation_result
+
+        #    - name: Create logical volume
+        #      command: lvcreate -y -L {{ lvsize }} -n {{ new_lv_name }} {{ vg_name }}
+        #      ignore_errors: yes
+        #      register: lv_creation_result #Registers the result of the task, to skip some tasks in case of already existing volume.
 
     - name: Skip play if logical volume creation fails
       block:
         - name: Handle failed logical volume creation #Task to end play (Not whole playbook) if the LVM wasn't created this run.
           meta: end_play
-      when: lv_creation_result is failed
+      when: lv_creation_result is not changed
 
     - name: Format logical volume as XFS
       command: mkfs.xfs /dev/{{ vg_name }}/{{ new_lv_name }}
@@ -107,6 +116,7 @@
       file:
         path: "{{ mount_name }}"
         state: directory
+      ignore_errors: yes
 
     - name: Mount NFS share
       command: mount "{{ mount_name }}"
