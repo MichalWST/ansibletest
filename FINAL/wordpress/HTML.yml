@@ -18,5 +18,5 @@
         dest: /var/www/html/index.html
       notify: Restart Apache2
 
-  handlers:
+  handlers: #Same handler used in another playbook.
     - include: handlers/apache_handlers.yml

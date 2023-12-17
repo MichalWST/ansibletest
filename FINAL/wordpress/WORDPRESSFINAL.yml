@@ -13,7 +13,7 @@
           - python3-pymysql
         state: present
 
-    - name: Change bind-address in MariaDB configuration
+    - name: Change bind-address in MariaDB configuration  #So we're able to connect from any address
       lineinfile:
         path: /etc/mysql/mariadb.conf.d/50-server.cnf
         regexp: '^bind-address\s*='
@@ -21,7 +21,7 @@
       notify: Restart MariaDB
 
     - name: Create WordPress database
-      mysql_db:
+      mysql_db: #Module to work with SQL 
         name: "{{ mariadb_db_name }}"
         collation: utf8_unicode_ci
         encoding: utf8
@@ -30,7 +30,7 @@
       become: yes
 
     - name: Grant privileges to user for WordPress database
-      mysql_query:
+      mysql_query: #Simple sql module, to perform specific queries
         login_user: "{{ mariadb_login_user }}"
         login_unix_socket: "{{ mariadb_socket_path }}"
         query: "GRANT ALL PRIVILEGES ON wordpress_db.* TO wsthttp@'192.168.31.238' IDENTIFIED BY 'wst';"
@@ -43,8 +43,10 @@
         query: "FLUSH PRIVILEGES;"
       become: yes
       notify: Restart MariaDB
+
   handlers:
     - include: handlers/db_handlers.yml
+
 - name: Install WordPress Dependencies and Setup
   hosts: http
   become: yes
@@ -63,21 +65,21 @@
       - php-xml
       - php-xmlrpc
       - php-zip
-      - unzip
+      - unzip #To unzipe downloaded wordpress
 
   tasks:
-    - name: Install required packages
+    - name: Install required packages for wordpress
       apt:
         name: "{{ packages_to_install }}"
         state: present
 
-    - name: Download WordPress
-      get_url:
+    - name: Download WordPress from wordpress.org/latest.zip
+      get_url: #Module to use instead of curl/wget
         url: "https://wordpress.org/latest.zip"
         dest: "/tmp/latest.zip"
 
     - name: Unzip WordPress archive
-      unarchive:
+      unarchive: #Instead of unzip command for .zip file. Would also work with .tar.gz files
         src: "/tmp/latest.zip"
         dest: "/tmp/"
         remote_src: yes

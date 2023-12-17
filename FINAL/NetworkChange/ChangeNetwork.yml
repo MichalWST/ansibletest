@@ -2,7 +2,7 @@
   hosts: all
   become: true
   tasks:
-    - name: Template netplan configuration file
+    - name: Use template to change netplan file
       template:
         src: templates/netplan_config.j2
         dest: /etc/netplan/00-installer-config.yaml
@@ -14,7 +14,7 @@
           dns_search: praca.wst
 
 
-    - name: Apply netplan configuration
+    - name: Apply netplan configuration #Set up not to hand or fail playbook. Once netplan apply is performed the ssh connection will be lost
       command: netplan apply
       ignore_errors: yes
       async: 60
