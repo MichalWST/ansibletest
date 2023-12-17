@@ -11,6 +11,7 @@
 - name: Down goes the localhost
   hosts: localhost
   become: true
+  gather_facts: false
   tasks:
     - name: Bye
       command: shutdown -h now

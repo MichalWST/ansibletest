@@ -6,7 +6,7 @@
     - update
 
   tasks:
-    - name: Include global variables #One way to include variables from the file.
+    - name: Include global variables from files/nfs_vars.yml #One way to include variables from the file.
       local_action:
         module: include_vars
         file: files/nfs_vars.yml
@@ -25,13 +25,13 @@
         state: present
 
     - name: Create logical volume
-      community.general.lvol:
+      community.general.lvol: #Community module
         vg: "{{ vg_name }}"
         lv: "{{ new_lv_name }}"
         size: "{{ lvsize }}"
         force: yes
       ignore_errors: yes
-      register: lv_creation_result
+      register: lv_creation_result #Registers if the task is finished OK/CHANGED/FAILED
 
         #    - name: Create logical volume
         #      command: lvcreate -y -L {{ lvsize }} -n {{ new_lv_name }} {{ vg_name }}
@@ -42,7 +42,7 @@
       block:
         - name: Handle failed logical volume creation #Task to end play (Not whole playbook) if the LVM wasn't created this run.
           meta: end_play
-      when: lv_creation_result is not changed
+      when: lv_creation_result is not changed #If LVM creation failed or didn't happen this run, we don't want to perform rest of this play
 
     - name: Format logical volume as XFS
       command: mkfs.xfs /dev/{{ vg_name }}/{{ new_lv_name }}
@@ -51,7 +51,6 @@
       file:
         path: "{{ new_filesystem }}"
         state: directory
-
 
     - name: Add entry to /etc/fstab
       lineinfile:
@@ -83,7 +82,7 @@
         state: restarted
         enabled: yes
     
-- name: Loading vars
+- name: Mounting on clients
   hosts: all:!nfs
   gather_facts: false
   become: true
@@ -93,19 +92,19 @@
   tasks:
 
     - name: Include global variables
-      local_action:
+      local_action: #Only to perform this task once, on localhost
         module: include_vars
         file: files/nfs_vars.yml
-      run_once: yes
+      run_once: yes #To be checked if needed
 
-    - name: Install NFS server package
+    - name: Install nfs-common package to mount NFS drives
       apt:
         name: nfs-common
         state: present
 
-    - name: Show variables
-      debug:
-        msg: "Variable '{{ new_lv_name  }}' "
+          #    - name: Show variables
+          #      debug:
+          #        msg: "Variable '{{ new_lv_name  }}' "
 
     - name: Add entry to /etc/fstab
       lineinfile:

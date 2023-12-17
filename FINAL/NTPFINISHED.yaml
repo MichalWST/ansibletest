@@ -5,7 +5,7 @@
     - update
   tasks:
 
-    - name: install ntp
+    - name: install ntp package
       apt:
         name:
            - ntp
@@ -31,7 +31,7 @@
     - name: Test DNS with ping
       command: ping -c 4 dns.praca.wst
 
-    - name: Set timezone to London
+    - name: Set timezone to Europe/Warsaw
       timezone:
          name: 'Europe/Warsaw'
 
@@ -50,14 +50,14 @@
     - update
   tasks:
 
-    - name: Setting timedatectl to no
+    - name: Setting timedatectl set-ntp to no
       command: timedatectl set-ntp no
       ignore_errors: true
 
     - name: Add NTP entry to /etc/systemd/timesyncd.conf
       lineinfile:
         path: /etc/systemd/timesyncd.conf
-        regexp: '^#NTP'
+        regexp: '^#NTP' #Searches for the line starting with #NTP and replaces it with following:
         line: 'NTP=ntp.praca.wst'
 
     - name: Restart systemd-timesyncd
@@ -66,7 +66,7 @@
         state: restarted
         enabled: yes
 
-    - name: Set timezone to London
+    - name: Set timezone to Europe/Warsaw
       timezone:
-         name: 'Europe/London'
+         name: 'Europe/Warsaw'
 

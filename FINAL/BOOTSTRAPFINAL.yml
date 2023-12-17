@@ -2,7 +2,7 @@
 - name: Perform tasks on localhost
   hosts: localhost
   gather_facts: false
-  pre_tasks:
+  pre_tasks: #Tasks to be performed first in the playbook (On localhost)
 
   tasks:
     - name: Generate SSH keys #Generate new key, needed for further ansible playbooks. Ignore errors if key already exists.
@@ -12,7 +12,7 @@
 
     - name: Perform ssh-keyscan
       shell: ssh-keyscan -H {{ item }}
-      with_items: "{{ groups['all'] }}"
+      with_items: "{{ groups['all'] }}" #Perform multiple times on localhost, for each host from inventory
       ignore_errors: yes
       tags:
         - ssh-keyscan
@@ -20,9 +20,9 @@
 
 - hosts: all
   become: true
-  pre_tasks: #Tasks to be performed first
+  pre_tasks: #Tasks to be performed first on all hosts from Inentory
 
-  - name: install updates and upgrade
+  - name: update apt cache
     apt:
       #upgrade: dist  #Upgrade all packages
       update_cache: yes #Just update repository database, no upgrades.
@@ -38,12 +38,12 @@
       shell: /bin/bash
       createhome: yes
 
-  - name: add ssh key for ansnix
+  - name: add public ssh key for ansnix
     authorized_key:
       user: ansnix
       key: "{{ lookup('file', '~/.ssh/ansnixkey.pub') }}" #Reads the content of given file, loads it to authorized_key module.
 
-  - name: add sudoers file for ansnix
+  - name: add sudoers file for ansnix #So that ansnix user can perform sudo commands without password. We don't have to type sudo password for the playbooks with "become: yes"
     copy:
       src: sudoers_ansnix
       dest: /etc/sudoers.d/ansnix
@@ -53,5 +53,5 @@
 
   - name: Change hostname
     hostname:
-      name: "{{ hostvars[inventory_hostname].name }}" #Reads name for each IP based on Inventory file.
+      name: "{{ hostvars[inventory_hostname].name }}" #Reads name for each IP based on Inventory file. Each server in inventory has "name" value.
 

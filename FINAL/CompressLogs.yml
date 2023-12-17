@@ -1,4 +1,4 @@
-- name: Manage large log files with system facts
+- name: Archive old big files
   hosts: nfs
   gather_facts: yes
   become: true
@@ -8,7 +8,7 @@
     destination_path: /tmp/old/
 
   tasks:
-    - name: Get size of the file
+    - name: Gather file details
       ansible.builtin.stat:
         path: "{{ file_path }}"
       register: file_stat

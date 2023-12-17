@@ -1,11 +1,11 @@
 ---
 - name: Set up Git server and clients
-  hosts: git:git_clients
+  hosts: git:git_clients #Changes both for git server and hosts
   become: true
   roles:
     - update
   tasks:
-    - name: Update Git with apt #Redundant with role before.
+    - name: Update Git with apt #Redundant with role before unless upgrade is # in roles.
       apt:
         name: git
         state: latest
@@ -13,6 +13,7 @@
     - name: Create git user with home dir and bash shell
       user:
         name: git
+        group: git
         shell: /bin/bash
         createhome: yes
 
@@ -38,12 +39,12 @@
   become: true
   tasks:
 
-  - name: Authorize key for git user
+  - name: Authorize key for git user, copy public key to hosts from server.
     authorized_key:
       user: git
       key: "{{ lookup('file', 'vault/git/git_ssh_key.pub') }}"
 
-  - name: Create Git repository directory
+  - name: Create Git repository directory under ~/git_repo/my_project.git
     ansible.builtin.file:
       path: /home/git/git_repo/my_project.git
       state: directory
@@ -74,7 +75,7 @@
         owner: git
         group: git
 
-    - name: Copy Git SSH key to clients
+    - name: Copy private Git SSH key to clients
       copy:
         src: vault/git/git_ssh_key
         dest: /home/git/.ssh/git_ssh_key
@@ -83,7 +84,7 @@
         group: git
         force: yes
 
-    - name: Copy ssh config for git@git
+    - name: Copy ssh config for git@git #So that default ssh command uses our new ssh key names git_ssh_key
       copy:
         src: files/git_ssh_config
         dest: /home/git/.ssh/git_ssh_config
@@ -91,14 +92,14 @@
         owner: git
         group: git
 
-    - name: Add entry for ssh config file
+    - name: Add entry for ssh config file #Spcifies in config file to look for another configuration file - git_ssh_config
       lineinfile:
         path: /home/git/.ssh/config
         line: "Include git_ssh_config"
         state: present
         create: yes #Creates the file if none exists
 
-    - name: trying some ssh-keyscan #First connections between machines require fingerprint acceptance.
+    - name: Perform ssh-keyscan from clients to git server on git user #First connections between machines require fingerprint acceptance.
       command: su -c "ssh-keyscan -H git.praca.wst >> ~/.ssh/known_hosts" git
 
     - name: Initialize Git repository
