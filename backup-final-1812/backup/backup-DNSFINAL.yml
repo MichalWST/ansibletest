@@ -1,0 +1,79 @@
+---
+- name: Setting up DNS Server
+  hosts: dns
+  become: true
+  vars:
+    dns_zone_file: "/etc/bind/db.praca.wst"
+    servers:
+      - name: NFS
+        ip: "192.168.31.235"
+      - name: NTP
+        ip: "192.168.31.236"
+      - name: DB
+        ip: "192.168.31.237"
+      - name: HTTP
+        ip: "192.168.31.238"
+      - name: GIT
+        ip: "192.168.31.239"
+      - name: DNS
+        ip: "192.168.31.230"
+      - name: Ansible
+        ip: "192.168.31.234"
+
+
+
+  tasks:
+    - name: update cache and install updates for apt
+      apt:
+        upgrade: dist
+        update_cache: yes
+
+    - name: install bind9, bind9utils, bind9-doc and dnsutils
+      apt:
+        name:
+           - bind9
+           - bind9utils
+           - bind9-doc
+           - dnsutils
+        state: latest
+
+
+    - name: Copy named.conf.local file
+      copy:
+        src: files/named.conf.local
+        dest: /etc/bind/named.conf.local
+
+    - name: Copy zone file db.praca.wst
+      copy:
+        src: files/db.praca.wst
+        dest: "{{ dns_zone_file }}"
+
+    - name: Add DNS entires to db.praca.wst
+      block:
+        - name: Add DNS entry for each server
+          lineinfile:
+            path: "{{ dns_zone_file }}"
+            line: "{{ item.name }} IN A {{ item.ip }}"
+            insertafter: EOF
+          loop: "{{ servers }}"
+          loop_control:
+            label: "{{ item.name }}"
+
+    - name: Restart Bind9 to apply changes
+      service:
+        name: bind9
+        state: restarted
+        enabled: yes
+
+- name: Setting up DNS Server
+  hosts: all:!dns
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Rebooting servers to apply DNS changes
+      become: true
+      reboot:
+        reboot_timeout: 3600
+        pre_reboot_delay: 5
+        post_reboot_delay: 20
+        test_command: uptime

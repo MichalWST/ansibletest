@@ -92,10 +92,10 @@
   tasks:
 
     - name: Include global variables
-      local_action: #Only to perform on localhost
+      local_action: #Only to perform this task once, on localhost
         module: include_vars
         file: files/nfs_vars.yml
-      run_once: yes
+      run_once: yes #To be checked if needed
 
     - name: Install nfs-common package to mount NFS drives
       apt:

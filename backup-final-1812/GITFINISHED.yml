@@ -13,7 +13,7 @@
     - name: Create git user with home dir and bash shell
       user:
         name: git
-          # group: git
+        group: git
         shell: /bin/bash
         createhome: yes
 

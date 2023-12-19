@@ -1,0 +1,14 @@
+network:
+  version: 2
+  ethernets:
+    {{ interface_name }}:
+      addresses:
+        - {{ host_ip }}/24
+      routes:
+        - to: default
+          via: {{ eth_interface_config.gateway4 }}
+      nameservers:
+        addresses:
+          - {{ eth_interface_config.dns_primary_ip }}
+          - {{ eth_interface_config.dns_secondary_ip }}
+        search: [{{ eth_interface_config.dns_search }}]

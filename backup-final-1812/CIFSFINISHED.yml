@@ -5,15 +5,12 @@
   roles:
     - update
   tasks:
-    - name: Include vault-encrypted credentials
-      include_vars: vault/CIFS_Credentials.yml
-
     - name: Install samba package
       apt:
         name: samba
         state: present
 
-    - name: Create /shares/smb directory #To be shared as CIFS to clients
+    - name: Create /shares/smb directory) #To be shared as CIFS to clients
       file:
          path: /shares/smb
          state: directory
@@ -40,8 +37,8 @@
       expect:
         command: smbpasswd -a wst #One way to work with interactive prompts. Adds user wst to samba
         responses:
-          'New SMB password:': '{{ password }}'
-          'Retype new SMB password:': '{{ password }}'
+          'New SMB password:': 'wst'
+          'Retype new SMB password:': 'wst'
   handlers:
     - name: Restart smbd.service #Handler for "Copy pre-configured smb.conf"
       service:
@@ -59,31 +56,11 @@
         name: cifs-utils
         state: present
 
-    - name: Include vault-encrypted credentials
-      include_vars: vault/CIFS_Credentials.yml
-
-
-    - name: Create file with password
-      file:
-        path: /root/cifs_password
-        state: touch
-        mode: 'u=r,o='
-
-    - name: Add content to the file
-      lineinfile:
-        path: /root/cifs_password
-        line: "{{ item }}"
-        create: yes
-      with_items:
-        - "username={{ username }}"
-        - "password={{ password }}"
-      no_log: true
-
     - name: Mount CIFS #Mount module with state mounted - creates path if needed, mounts filesystem and adds fstab entry.
       mount:
         path: /mnt/remote4
         state: mounted
         src: "//192.168.31.235/smb"
         fstype: cifs
-        opts: "credentials=/root/cifs_password,uid=wst,gid=wst,file_mode=0755,dir_mode=0755"
+        opts: "username=wst,password=wst,uid=wst,gid=wst,file_mode=0755,dir_mode=0755"
 

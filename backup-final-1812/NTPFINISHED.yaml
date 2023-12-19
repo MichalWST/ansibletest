@@ -35,6 +35,14 @@
       timezone:
          name: 'Europe/Warsaw'
 
+    - name: Restart resolved for DNS
+      service:
+        name: systemd-resolved
+        state: restarted
+        enabled: yes
+
+
+
 - name: Configure timedatectl on clients
   hosts: all:!ntp #All servers but ntp
   become: true

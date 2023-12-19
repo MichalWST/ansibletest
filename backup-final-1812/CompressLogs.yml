@@ -15,7 +15,7 @@
 
     - name: Convert file size to KB for comparison
       set_fact:
-        file_size_kb: "{{ (file_stat.stat.size / 1024) | int }}" #Converts bytes into KB
+        file_size_kb: "{{ (file_stat.stat.size / 1024) | int }}"
 
     - name: Ensure destination directory exists
       ansible.builtin.file:
@@ -30,7 +30,7 @@
 
     - name: Convert disk space to bytes for comparison
       set_fact:
-        disk_space_bytes: "{{ (disk_space_raw.stdout | int) * 1024 }}" #DF returns value in KB, converting to bytes
+        disk_space_bytes: "{{ (disk_space_raw.stdout | int) * 1024 }}"
 
     - name: Move and compress the file if size > threshold and enough disk space
       block:
@@ -53,6 +53,6 @@
 
       when:
         - file_stat.stat.exists
-        - (file_size_kb | int) > size_threshold_kb #Compares values in KB between file size and treshold
-        - (disk_space_bytes | int) > (file_stat.stat.size | int) #Compares available space (from df command) to file size in bytes
+        - (file_size_kb | int) > size_threshold_kb
+        - (disk_space_bytes | int) > (file_stat.stat.size | int)
 

@@ -1,0 +1,7 @@
+lvsize: "10G"
+vg_name: "ubuntu-vg"
+new_lv_name: "lv-nfs-share"
+new_filesystem: "/NFS_mount"
+new_owner: "ansnix"
+new_group: "ansnix"
+mount_name: "/NFS_mount_client"
