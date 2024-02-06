@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Custom website</title>
+    <style>
+        body {
+            transition: background-color 0.3s ease;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #0099cc;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0077aa;
+        }
+
+        .ascii-art {
+            white-space: pre;
+            font-family: monospace;
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="ascii-art">
+            <div class="line1"> /\_/\ </div>
+            <div class="line2">( o.o )</div>
+            <div class="line3"> > ^ < </div>
+        </div>
+        <button onclick="changeBackgroundColor()">Change Background</button>
+        <p>Custom default website</p>
+    </div>
+
+    <script>
+        function changeBackgroundColor() {
+            var randomColor = getRandomColor();
+            document.body.style.backgroundColor = randomColor;
+        }
+
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    </script>
+</body>
+
+</html>

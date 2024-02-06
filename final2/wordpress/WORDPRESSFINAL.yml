@@ -1,0 +1,127 @@
+- name: Setup MariaDB Server
+  hosts: db
+  become: yes
+  
+  vars_files:
+    - vars/db_vars.yml
+
+  tasks:
+    - name: Install MariaDB server
+      apt:
+        name: 
+          - mariadb-server
+          - python3-pymysql
+        state: present
+
+    - name: Change bind-address in MariaDB configuration  #So we're able to connect from any address
+      lineinfile:
+        path: /etc/mysql/mariadb.conf.d/50-server.cnf
+        regexp: '^bind-address\s*='
+        line: 'bind-address = 0.0.0.0'
+      notify: Restart MariaDB
+
+    - name: Create WordPress database
+      mysql_db: #Module to work with SQL 
+        name: "{{ mariadb_db_name }}"
+        collation: utf8_unicode_ci
+        encoding: utf8
+        login_user: "{{ mariadb_login_user }}"
+        login_unix_socket: "{{ mariadb_socket_path }}"
+      become: yes
+
+    - name: Grant privileges to user for WordPress database
+      mysql_query: #Simple sql module, to perform specific queries
+        login_user: "{{ mariadb_login_user }}"
+        login_unix_socket: "{{ mariadb_socket_path }}"
+        query: "GRANT ALL PRIVILEGES ON wordpress_db.* TO wsthttp@'192.168.31.238' IDENTIFIED BY 'wst';"
+      become: yes
+
+    - name: Flush MySQL privileges
+      mysql_query:
+        login_user: "{{ mariadb_login_user }}"
+        login_unix_socket: "{{ mariadb_socket_path }}"
+        query: "FLUSH PRIVILEGES;"
+      become: yes
+      notify: Restart MariaDB
+
+  handlers:
+    - include: handlers/db_handlers.yml
+
+- name: Install WordPress Dependencies and Setup
+  hosts: http
+  become: yes
+
+  vars:
+    apache_conf_src: "files/wordpress.conf"
+    apache_conf_dest: "/etc/apache2/sites-available/wordpress.conf"
+    packages_to_install:
+      - libapache2-mod-php
+      - php-curl
+      - php-gd
+      - php-intl
+      - php-mbstring
+      - php-mysql
+      - php-soap
+      - php-xml
+      - php-xmlrpc
+      - php-zip
+      - unzip #To unzipe downloaded wordpress
+
+  tasks:
+    - name: Install required packages for wordpress
+      apt:
+        name: "{{ packages_to_install }}"
+        state: present
+
+    - name: Download WordPress from wordpress.org/latest.zip
+      get_url: #Module to use instead of curl/wget
+        url: "https://wordpress.org/latest.zip"
+        dest: "/tmp/latest.zip"
+
+    - name: Unzip WordPress archive
+      unarchive: #Instead of unzip command for .zip file. Would also work with .tar.gz files
+        src: "/tmp/latest.zip"
+        dest: "/tmp/"
+        remote_src: yes
+
+    - name: Set ownership to www-data
+      file:
+        path: "/tmp/wordpress"
+        owner: www-data
+        group: www-data
+        recurse: yes
+
+    - name: Move WordPress to /var/www
+      command: mv /tmp/wordpress /var/www
+      register: move_wordpress
+      ignore_errors: no
+      failed_when:
+        - "'Directory not empty' in move_wordpress.stderr"
+        - "move_wordpress.rc != 0"
+
+    - name: Remove downloaded zip file
+      file:
+        path: "/tmp/latest.zip"
+        state: absent
+
+    - name: Transfer WordPress Apache config file
+      copy:
+        src: "{{ apache_conf_src }}"
+        dest: "{{ apache_conf_dest }}"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Disable default site configuration
+      command: a2dissite 000-default.conf
+      ignore_errors: yes
+
+    - name: Enable WordPress site configuration
+      command: a2ensite wordpress.conf
+
+    - name: Enable mod_rewrite in Apache
+      command: a2enmod rewrite
+      notify: Restart Apache2
+
+  handlers:
+    - include: handlers/apache_handlers.yml

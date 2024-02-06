@@ -1,0 +1,89 @@
+---
+- name: Set up Samba (CIFS) host
+  hosts: cifs_hosts
+  become: yes
+  roles:
+    - update
+  tasks:
+    - name: Include vault-encrypted credentials
+      include_vars: vault/CIFS_Credentials.yml
+
+    - name: Install samba package
+      apt:
+        name: samba
+        state: present
+
+    - name: Create /shares/smb directory
+      file:
+         path: /shares/smb
+         state: directory
+         owner: wst
+         group: wst
+         mode: "0755"
+
+
+    - name: Move existing smb.conf to smb.conf.old
+      command: mv /etc/samba/smb.conf /etc/samba/smb.conf.old
+      args:
+        creates: /etc/samba/smb.conf.old
+      changed_when: false
+
+    - name: Copy pre-configured smb.conf
+      copy:
+        src: files/smb.conf
+        dest: /etc/samba/smb.conf
+        backup: yes
+      notify: Restart smbd.service
+
+    - name: Add user to smbpasswd
+      changed_when: false
+      expect:
+        command: smbpasswd -a wst
+        responses:
+          'New SMB password:': '{{ password }}'
+          'Retype new SMB password:': '{{ password }}'
+  handlers:
+    - name: Restart smbd.service
+      service:
+        name: smbd
+        state: restarted
+
+- name: Configure CIFS on client Servers
+  hosts: cifs_clients
+  become: yes
+  roles:
+    - update
+  tasks:
+    - name: Install cifs-utils
+      apt:
+        name: cifs-utils
+        state: present
+
+    - name: Include vault-encrypted credentials
+      include_vars: vault/CIFS_Credentials.yml
+
+
+    - name: Create file with password
+      file:
+        path: /root/cifs_password
+        state: touch
+        mode: 'u=r,o='
+
+    - name: Add content to the file
+      lineinfile:
+        path: /root/cifs_password
+        line: "{{ item }}"
+        create: yes
+      with_items:
+        - "username={{ username }}"
+        - "password={{ password }}"
+      no_log: true
+
+    - name: Mount CIFS
+      mount:
+        path: /mnt/remote4
+        state: mounted
+        src: "//192.168.31.235/smb"
+        fstype: cifs
+        opts: "credentials=/root/cifs_password,uid=wst,gid=wst,file_mode=0755,dir_mode=0755"
+

@@ -1,0 +1,105 @@
+---
+- name: Set up Git server and clients
+  hosts: git:git_clients #Changes both for git server and hosts
+  become: true
+  roles:
+    - update
+  tasks:
+    - name: Create git user with home dir and bash shell
+      user:
+        name: git
+          # group: git
+        shell: /bin/bash
+        createhome: yes
+
+    - name: Read hashed password from file
+      set_fact:
+        hashed_password: "{{ lookup('file', 'vault/git/passwords') | password_hash('sha512') }}" # Reads the content of the vaulted file, hashes it and stores in var
+
+    - name: Set password for git user
+      user:
+        name: git
+        password: "{{ hashed_password }}"
+        update_password: always
+
+    - name: Set global Git user.email #Sets up global vars for git
+      command: su -c "git config --global user.email 'michal@praca.wst'" git
+
+    - name: Set global Git user.name
+      command: su -c "git config --global user.name 'michal'" git
+
+- name: Git server specific changes
+  hosts: git #Just servers from [git]
+  become: true
+  tasks:
+
+  - name: Authorize key for git user, copy public key to hosts from server.
+    authorized_key:
+      user: git
+      key: "{{ lookup('file', 'vault/git/git_ssh_key.pub') }}"
+
+  - name: Create Git repository directory under ~/git_repo/my_project.git
+    ansible.builtin.file:
+      path: /home/git/git_repo/my_project.git
+      state: directory
+      owner: git
+      group: git
+      mode: "0775"
+
+  - name: Initialize Git repository
+    command: git --bare init
+    args:
+      chdir: /home/git/git_repo/my_project.git
+      creates: /home/git/git_repo/my_project.git/HEAD
+
+  - name: Set ownership recursively for the repository directory
+    command: chown -R git:git /home/git/git_repo
+
+
+- name: Git server specific changes
+  hosts: git_clients #Just clients
+  become: true
+  tasks:
+
+    - name: Ensure .ssh directory exists
+      ansible.builtin.file:
+        path: /home/git/.ssh
+        state: directory
+        mode: '0700'
+        owner: git
+        group: git
+
+    - name: Copy private Git SSH key to clients
+      copy:
+        src: vault/git/git_ssh_key
+        dest: /home/git/.ssh/git_ssh_key
+        mode: '0600'
+        owner: git
+        group: git
+        force: yes
+
+    - name: Copy ssh config for git@git
+      copy:
+        src: files/git_ssh_config
+        dest: /home/git/.ssh/git_ssh_config
+        mode: '0600'
+        owner: git
+        group: git
+
+    - name: Add entry for ssh config file
+      lineinfile:
+        path: /home/git/.ssh/config
+        line: "Include git_ssh_config"
+        state: present
+        create: yes #Creates the file if none exists
+
+    - name: Perform ssh-keyscan from clients to git server on git user
+      command: su -c "ssh-keyscan -H git.praca.wst >> ~/.ssh/known_hosts" git
+
+    - name: Initialize Git repository
+      command: su -c "git clone git@git:/home/git/git_repo/my_project.git" git
+      args:
+         chdir: /home/git
+         creates: /home/git/my_project
+
+

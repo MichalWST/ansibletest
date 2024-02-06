@@ -1,0 +1,16 @@
+all:
+  hosts:
+    192.168.31.230:
+      name: DNSserver
+    192.168.31.236:
+      name: NTPserver
+    192.168.31.237:
+      name: DBserver
+    192.168.31.235:
+      name: NFSserver
+    192.168.31.238:
+      name: HTTPserver
+    192.168.31.239:
+      name: GITserver
+
+

@@ -1,0 +1,5 @@
+- name: Update apt cache
+  apt:
+    #upgrade: dist
+    update_cache: yes
+    

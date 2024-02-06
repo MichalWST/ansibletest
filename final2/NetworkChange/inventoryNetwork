@@ -1,0 +1,11 @@
+all:
+  hosts:
+    oldGit:
+      ansible_host: 192.168.31.239
+      host_ip: 192.168.31.240
+      interface_name: enp0s3
+    oldNFS:
+      ansible_host: 192.168.31.235
+      host_ip: 192.168.31.245
+      interface_name: enp0s3
+

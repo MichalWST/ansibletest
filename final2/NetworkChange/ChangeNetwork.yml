@@ -1,0 +1,23 @@
+- name: Configure netplan
+  hosts: all
+  become: true
+  tasks:
+    - name: Use template to change netplan file
+      template:
+        src: templates/netplan_config.j2
+        dest: /etc/netplan/00-installer-config.yaml
+      vars:
+        eth_interface_config:
+          gateway4: 192.168.31.1
+          dns_primary_ip: 192.168.31.230
+          dns_secondary_ip: 8.8.4.4
+          dns_search: praca.wst
+
+
+    - name: Apply netplan configuration
+      command: netplan apply
+      ignore_errors: yes
+      async: 60
+      poll: 0
+
+
