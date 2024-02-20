@@ -1,0 +1,45 @@
+1.	ansible-playbook -u wst --ask-pass --ask-become-pass BOOTSTRAPFINAL.yml -i files/INVENTORY-BOOTSTRAP
+2.	ansible-playbook DNSFINAL.yml -i inventoryIP
+sudo systemctl restart systemd-resolved
+3.	ansible-playbook NTPFINISHED.yml 
+timedatectl show-timesync --all
+systemctl status systemd-timesyncd
+systemctl status ntp
+ntpq -p
+
+4.	ansible-playbook NFSFINAL.yml
+
+5. ansible-playbook GITFINISHED.yml --ask-vault-password
+cd my_project/
+git status
+echo "Something" > test.txt
+git add .
+git commit -m "Testing"
+git push origin master
+
+git pull origin
+
+6. ansible-playbook CIFSFINISHED.yml --ask-vault-password
+cd mnt/remote4/
+df -h .
+\\192.168.31.235\smb
+
+cd wordpress/
+7. ansible-playbook wordpress/HTML.yml
+http://192.168.31.238
+8. ansible-playbook wordpress/WORDPRESSFINAL.yml --ask-vault-password
+wordpress_db
+wsthttp
+wst
+192.168.31.237
+db.praca.wst
+
+9  ansible-playbook CompressLogs.yml
+	fallocate -l 6M test.txt
+	truncate test.txt --size=0
+	tar -xvf test.tar.gz
+	
+	cd ~/ansibletest/final2/NetworkChange
+10. ansible-playbook ChangeNetwork.yml
+
+11. ansible-playbook CUSTOMCHANGES.yml --ask-vault-password
